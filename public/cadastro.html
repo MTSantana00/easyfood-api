@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastrar restaurante | EasyFood</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { min-height: 100vh; padding: 28px 12px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #fff4eb, #f3f4f6); color: #202020; font-family: Arial, sans-serif; }
+        .celular { display: flex; flex-direction: column; width: 100%; max-width: 390px; height: 844px; border: 8px solid #1b1b1b; border-radius: 42px; background: white; box-shadow: 0 25px 60px rgba(0, 0, 0, 0.22); overflow: hidden; }
+        .barra-status { display: flex; flex-shrink: 0; align-items: center; justify-content: space-between; padding: 16px 22px 8px; font-size: 12px; font-weight: bold; }
+        .container { min-height: 0; flex: 1; padding: 12px 20px 30px; overflow-y: auto; scrollbar-width: none; }
+        .container::-webkit-scrollbar { display: none; }
+        header { display: flex; align-items: center; justify-content: space-between; padding-bottom: 18px; margin-bottom: 22px; border-bottom: 1px solid #eee; }
+        .voltar { border: none; background: transparent; color: #333; cursor: pointer; font-size: 22px; text-decoration: none; }
+        .logo { font-size: 24px; font-weight: 800; }
+        .logo span { color: #ff5a1f; }
+        .icone-cabecalho { display: flex; width: 36px; height: 36px; align-items: center; justify-content: center; border-radius: 50%; background: #fff2e8; }
+        .introducao { margin-bottom: 22px; }
+        .introducao h1 { margin-bottom: 7px; font-size: 23px; }
+        .introducao p { color: #777; font-size: 13px; line-height: 1.5; }
+        .campo { margin-bottom: 16px; }
+        .campo label { display: block; margin-bottom: 7px; font-size: 12px; font-weight: bold; }
+        .campo input, .campo select { width: 100%; padding: 13px 14px; border: 1px solid #dedede; border-radius: 11px; outline: none; background: #fafafa; font-size: 13px; }
+        .campo input:focus, .campo select:focus { border-color: #ff5a1f; background: white; }
+        .botao-cadastrar { width: 100%; padding: 14px; margin-top: 5px; border: none; border-radius: 12px; background: linear-gradient(135deg, #ff5a1f, #ff8a3d); color: white; cursor: pointer; font-size: 14px; font-weight: bold; box-shadow: 0 10px 20px rgba(255, 90, 31, 0.25); }
+        .mensagem { display: none; padding: 12px; margin-top: 15px; border-radius: 10px; font-size: 12px; text-align: center; }
+        .mensagem.sucesso { display: block; border: 1px solid #bbf7d0; background: #f0fdf4; color: #15803d; }
+        .mensagem.erro { display: block; border: 1px solid #fecaca; background: #fef2f2; color: #b91c1c; }
+    </style>
+</head>
+<body>
+    <main class="celular">
+        <div class="barra-status">
+            <span>9:41</span>
+            <span>📶 🔋</span>
+        </div>
+
+        <div class="container">
+            <header>
+                <a href="/" class="voltar">←</a>
+                <div class="logo">Easy<span>Food</span></div>
+                <div class="icone-cabecalho">🍽️</div>
+            </header>
+
+            <section class="introducao">
+                <h1>Cadastrar restaurante</h1>
+                <p>Preencha os dados do seu restaurante para fazer parte da EasyFood.</p>
+            </section>
+
+            <form id="formulario-cadastro">
+                <div class="campo">
+                    <label for="name">Nome do restaurante *</label>
+                    <input type="text" id="name" placeholder="Ex.: Burger House" required>
+                </div>
+
+                <div class="campo">
+                    <label for="category">Categoria *</label>
+                    <select id="category" required>
+                        <option value="">Selecione uma categoria</option>
+                        <option value="Pizza">Pizza</option>
+                        <option value="Burguer">Burguer</option>
+                        <option value="Massa">Massa</option>
+                        <option value="Japonesa">Japonesa</option>
+                    </select>
+                </div>
+
+                <div class="campo">
+                    <label for="address">Endereço *</label>
+                    <input type="text" id="address" placeholder="Av. Paulista, 1000 - São Paulo" required>
+                </div>
+
+                <button type="submit" class="botao-cadastrar">Cadastrar restaurante</button>
+                <p id="mensagem" class="mensagem"></p>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        document.getElementById("formulario-cadastro").addEventListener("submit", async (evento) => {
+            evento.preventDefault();
+            const msg = document.getElementById("mensagem");
+            const token = localStorage.getItem("token");
+
+            if(!token) {
+                msg.className = "mensagem erro";
+                msg.textContent = "Você precisa fazer login na tela inicial primeiro!";
+                return;
+            }
+
+            const data = {
+                name: document.getElementById("name").value,
+                category: document.getElementById("category").value,
+                address: document.getElementById("address").value
+            };
+
+            try {
+                const res = await fetch('http://localhost:3000/restaurants', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify(data)
+                });
+                
+                const responseData = await res.json();
+                
+                if(res.ok) {
+                    msg.className = "mensagem sucesso";
+                    msg.textContent = "Restaurante cadastrado com sucesso!";
+                    document.getElementById("formulario-cadastro").reset();
+                } else {
+                    msg.className = "mensagem erro";
+                    msg.textContent = responseData.message || "Erro de validação ao salvar.";
+                }
+            } catch (err) {
+                msg.className = "mensagem erro";
+                msg.textContent = "Erro ao conectar com o servidor.";
+            }
+        });
+    </script>
+</body>
+</html>
