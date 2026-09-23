@@ -1,18 +1,19 @@
 import { jest } from '@jest/globals';
-import { RestaurantService } from '../src/modules/restaurants/restaurant.service.js';
+import { RestaurantService } from '../src/modules/restaurants/restaurants.service.js';
 
 describe('RestaurantService', () => {
   let restaurantService;
   let mockRepository;
 
   beforeEach(() => {
-    // Criamos um "banco falso" para o teste
+    // Criamos um "banco falso" (mock) para o teste
     mockRepository = {
       create: jest.fn().mockResolvedValue({ id: '123', name: 'Burger Test' }),
       findAll: jest.fn()
     };
     
     restaurantService = new RestaurantService();
+    // Injetamos o repositório falso no serviço
     restaurantService.repository = mockRepository;
   });
 

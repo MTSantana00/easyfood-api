@@ -1,22 +1,15 @@
-import { prisma } from '../../shared/prisma/client.js';
+import { RestaurantRepository } from './restaurant.repository.js';
 
-export class RestaurantsService {
-  async list() {
-    return await prisma.restaurant.findMany({
-      include: {
-        products: true,
-      },
-    });
+export class RestaurantService {
+  constructor() {
+    this.repository = new RestaurantRepository();
   }
 
-  async create({ name, category, address, ownerId }) {
-    return await prisma.restaurant.create({
-      data: {
-        name,
-        category,
-        address,
-        ownerId,
-      },
-    });
+  async createRestaurant(data) {
+    return await this.repository.create(data);
+  }
+
+  async listAll() {
+    return await this.repository.findAll();
   }
 }
